@@ -48,7 +48,7 @@ export default function UserRoutes(app, db) {
   if (currentUser) {
     req.session["currentUser"] = currentUser;
     req.session.save(() => {
-      console.log("Session after signin:", req.session); // ← add this
+      console.log("Session after signin:", req.session);
       res.json(currentUser);
     });
   } else {
@@ -79,7 +79,7 @@ export default function UserRoutes(app, db) {
     const currentUser = req.session["currentUser"];
     if (!currentUser) { res.sendStatus(401); return; }
     let { uid } = req.params;
-    if (!uid || uid === "current") uid = currentUser._id; // ← fix
+    if (!uid || uid === "current") uid = currentUser._id; 
     res.json(enrollmentsDao.findCoursesForUser(uid));
 };
 
@@ -95,8 +95,6 @@ export default function UserRoutes(app, db) {
     enrollmentsDao.unenrollUserFromCourse(uid, cid);
     res.sendStatus(200);
   };
-
-  // ✅ Specific routes first, wildcard routes last
   app.post("/api/users/signup", signup);
   app.post("/api/users/signin", signin);
   app.post("/api/users/signout", signout);
@@ -106,8 +104,6 @@ export default function UserRoutes(app, db) {
   app.get("/api/users/:uid/courses", findCoursesForUser);
   app.post("/api/users/:uid/courses/:cid", enrollUserInCourse);
   app.delete("/api/users/:uid/courses/:cid", unenrollUserFromCourse);
-
-  // ✅ Wildcard routes last
   app.post("/api/users", createUser);
   app.get("/api/users", findAllUsers);
   app.get("/api/users/:userId", findUserById);
