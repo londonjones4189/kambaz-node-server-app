@@ -11,7 +11,6 @@ import ModulesRoutes from "./(kambaz)/modules/routes.js";
 import AssignmentsRoutes from "./(kambaz)/assignments/routes.js";
 import EnrollmentRoutes from "./(kambaz)/enrollments/routes.js";
 
-
 const app = express();
 
 app.use(
@@ -32,7 +31,6 @@ if (process.env.SERVER_ENV !== "development") {
   sessionOptions.cookie = {
     sameSite: "none",
     secure: true,
-    domain: process.env.SERVER_URL,
   };
 }
 
