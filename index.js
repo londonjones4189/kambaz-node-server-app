@@ -14,6 +14,7 @@ import EnrollmentRoutes from "./(kambaz)/enrollments/routes.js";
 const CONNECTION_STRING = process.env.DATABASE_CONNECTION_STRING || "mongodb://127.0.0.1:27017/kambaz"
 mongoose.connect(CONNECTION_STRING);
 const app = express();
+app.set("trust proxy", 1);
 
 app.use(
   cors({
