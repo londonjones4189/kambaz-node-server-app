@@ -1,38 +1,32 @@
-import EnrollmentsDao from "./dao.js";
- 
-export default function EnrollmentRoutes(app, db) {
-  const dao = EnrollmentsDao(db);
- 
-  const findAllEnrollments = (req, res) => {
-    res.json(dao.findAllEnrollments());
-  };
- 
-  const findEnrollmentsForUser = (req, res) => {
-    const { userId } = req.params;
-    res.json(dao.findEnrollmentsForUser(userId));
-  };
- 
-  const enrollUserInCourse = (req, res) => {
-    const { userId, courseId } = req.params;
-    const enrollment = dao.enrollUserInCourse(userId, courseId);
-    res.json(enrollment);
-  };
- 
-  const unenrollUserFromCourse = (req, res) => {
-    const { userId, courseId } = req.params;
-    dao.unenrollUserFromCourse(userId, courseId);
-    res.sendStatus(200);
-  };
+import EnrollmentsDao from "./dao.js"
 
-const findCoursesForUser = (req, res) => {
-  const { userId } = req.params;
-  res.json(dao.findCoursesForUser(userId));
-};
+export default function EnrollmentsRoutes(app) {
+    const dao = EnrollmentsDao();
 
-  app.get("/api/enrollments/:userId/courses", findCoursesForUser);
-  app.get("/api/enrollments", findAllEnrollments);
-  app.get("/api/enrollments/:userId", findEnrollmentsForUser);
-  app.post("/api/enrollments/:userId/:courseId", enrollUserInCourse);
-  app.delete("/api/enrollments/:userId/:courseId", unenrollUserFromCourse);
+    const enrollInCourse = async (req, res) => {
+        const { uid, cid } = req.params;
+
+        if (uid === "current") {
+            const currentUser = req.session["currentUser"];
+            uid = currentUser._id;
+        }
+        const status = await enrollmentsDao.enrollUserInCourse(uid, cid);
+        res.send(status);
+
+    }
+
+    const unenrollInCourse = async (req, res) => {
+        const { uid, cid } = req.params;
+
+        if (uid === "current") {
+            const currentUser = req.session["currentUser"];
+            uid = currentUser._id;
+        }
+        const status = await enrollmentsDao.unenrollUserFromCourse(uid, cid);
+        res.send(status);
+
+    }
+
+    app.post("/api/courses/:courseId/enroll", enrollInCourse);
+    app.delete("/api/courses/:courseId/enroll", unenrollInCourse);
 }
- 

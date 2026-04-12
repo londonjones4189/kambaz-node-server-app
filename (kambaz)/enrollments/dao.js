@@ -1,42 +1,34 @@
 import { v4 as uuidv4 } from "uuid";
- 
-export default function EnrollmentsDao(db) {
-  function findAllEnrollments() {
-    return db.enrollments;
+import model from "./model.js"
+
+export default function EnrollmentsDao() {
+
+  async function findCoursesForUser(userId) {
+    const enrollments = await model.find({ user: userId }).populate("course");
+    return enrollments.map((enrollment) => enrollment.course);
   }
- 
-  function findEnrollmentsForUser(userId) {
-    return db.enrollments.filter((e) => e.user === userId);
+  async function findUsersForCourse(courseId) {
+    const enrollments = await model.find({ course: courseId }).populate("user");
+    return enrollments.map((enrollment) => enrollment.user);
   }
  
   function enrollUserInCourse(userId, courseId) {
-    const existing = db.enrollments.find(
-      (e) => e.user === userId && e.course === courseId
-    );
-    if (existing) return existing;
-    const newEnrollment = { _id: uuidv4(), user: userId, course: courseId };
-    db.enrollments.push(newEnrollment);
-    return newEnrollment;
-  }
+    return model.create({
+      user: userId,
+      course: courseId,
+      _id: `${userId}-${courseId}`,
+    });
  
-  function unenrollUserFromCourse(userId, courseId) {
-    db.enrollments = db.enrollments.filter(
-      (e) => !(e.user === userId && e.course === courseId)
-    );
-  }
- 
-  function findCoursesForUser(userId) {
-    const userEnrollments = db.enrollments.filter((e) => e.user === userId);
-    return userEnrollments.map((e) =>
-      db.courses.find((c) => c._id === e.course)
-    ).filter(Boolean);
   }
 
-  return {
-    findAllEnrollments,
-    findEnrollmentsForUser,
-    enrollUserInCourse,
-    unenrollUserFromCourse,
-    findCoursesForUser
-  };
+  function unenrollUserFromCourse(user, course) {
+    return model.deleteOne({ user, course });
+  }
+
+  function unenrollAllUsersFromCourse(courseId) {
+    return model.deleteMany({ course: courseId });
+  }
+ 
+
+  return { enrollUserInCourse, unenrollUserFromCourse, findCoursesForUser, findUsersForCourse, unenrollAllUsersFromCourse };
 }
