@@ -65,10 +65,7 @@ export default function CourseRoutes(app, db) {
     res.send(status);
   };
 
-const ENROLLMENTS_API = `${HTTP_SERVER}/api/enrollments`;
 
-
- 
 const findUsersForCourse = async (req, res) => {
     const { cid } = req.params;
     const users = await enrollmentsDao.findUsersForCourse(cid);
