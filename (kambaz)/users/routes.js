@@ -60,19 +60,27 @@ export default function UserRoutes(app) {
     res.json(currentUser);
   };
 
-  const signin = async (req, res) => {
-    const { username, password } = req.body;
-    const currentUser = await dao.findUserByCredentials(username, password);
-    if (currentUser) {
-      req.session["currentUser"] = currentUser;
-      req.session.save(() => {
-        console.log("Session after signin:", req.session);
-        res.json(currentUser);
-      });
-    } else {
-      res.status(401).json({ message: "Unable to login. Try again later." });
-    }
-  };
+ const signin = async (req, res) => {
+  const { username, password } = req.body;
+  console.log("Signin attempt - username:", username, "password:", password);
+  const currentUser = await dao.findUserByCredentials(username, password);
+  console.log("Found user:", currentUser);
+  if (currentUser) {
+    req.session["currentUser"] = currentUser;
+    req.session.save((err) => {
+      if (err) {
+        console.log("Session save error:", err);
+        res.status(500).json({ message: "Session error" });
+        return;
+      }
+      console.log("Session saved successfully:", req.session);
+      res.json(currentUser);
+    });
+  } else {
+    console.log("No user found for credentials");
+    res.status(401).json({ message: "Unable to login. Try again later." });
+  }
+};
 
   const signout = (req, res) => {
     req.session.destroy();
